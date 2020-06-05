@@ -50,6 +50,17 @@
             <strong>{{ part }}:</strong> <code>{{ parsedGrib[part] }}</code>
           </li>
         </ul>
+
+        <h3>Data values</h3>
+        <strong>Members:</strong> <code>parsedGrib.DataValues.length</code><br />
+
+        <label for="member-select">Member:</label>
+        <select v-model="selectedMember" id="member-select">
+          <option v-for="n in numMembers" :key="n">{{ n }}</option>
+        </select>
+        <code>
+          {{ parsedGrib.DataValues[selectedMember - 1] }}
+        </code>
       </v-col>
     </v-row>
   </v-container>
@@ -84,6 +95,7 @@ export default {
   data () {
     return {
       selectedGrib2FileIndex: 0,
+      selectedMember: 1,
       grib2Files: [
         'CMC_hrdps_west_TMP_ISBL_0750_ps2.5km_2020040106_P000-00.grib2',
         'CMC_glb_TMP_TGL_2_latlon.15x.15_2020060300_P000.grib2'
@@ -121,6 +133,9 @@ export default {
       let gribData = this.gribDataByFilename(this.selectedGribFilename)
       grib2Reader.parse(gribData)
       return grib2Reader
+    },
+    numMembers: function () {
+      return this.parsedGrib.DataValues.length
     },
     tileLayerList: function () {
       return [{
