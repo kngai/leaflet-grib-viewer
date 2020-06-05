@@ -33,11 +33,23 @@
     <h3>Parsed file details</h3>
     <v-row v-if="selectedGribLoaded">
       <v-col>
-        <p
-          v-for="part in grib2Parts"
-          :key="part">
-          <strong>{{ part }}</strong>: <code>{{ parsedGrib[part] }}</code>
-        </p>
+        <h3>Meta</h3>
+        <ul>
+          <li
+            v-for="(value, key) in parsedGrib.meta"
+            :key="key">
+            <strong>{{ key }}:</strong> {{ value }}
+          </li>
+        </ul>
+
+        <h3>Other grib parts</h3>
+        <ul>
+          <li
+            v-for="part in grib2Parts"
+            :key="part">
+            <strong>{{ part }}:</strong> <code>{{ parsedGrib[part] }}</code>
+          </li>
+        </ul>
       </v-col>
     </v-row>
   </v-container>
@@ -48,7 +60,7 @@ import L from 'leaflet'
 import { LMap, LControlScale, LControlLayers, LTileLayer } from 'vue2-leaflet'
 import GRIB2CLASS from 'grib2class'
 import { mapGetters, mapActions } from 'vuex'
-import JpxImage from '@/api/jpeg2000/jpx.min'
+import JpxImage from '@/api/jpeg2000/jpx.min.js'
 
 // Default leaflet icon settings
 delete L.Icon.Default.prototype._getIconUrl
@@ -67,7 +79,7 @@ export default {
     LTileLayer
   },
   mounted() {
-    this.getGrib(this.grib2Files[this.selectedGrib2FileIndex])
+    this.getGrib(this.selectedGribFilename)
   },
   data () {
     return {
@@ -77,14 +89,14 @@ export default {
         'CMC_glb_TMP_TGL_2_latlon.15x.15_2020060300_P000.grib2'
       ],
       grib2Reader: {},
-      grib2Parts: ['meta', 'ParameterNameAndUnit', /*'DataTitles',*/ 'DataValues', 'DataAllocated', 'LengthOfMessage', 'IdentificationOfCentre', 'IdentificationOfSubCentre', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Second', 'ForecastTimeInDefinedUnits', 'ForecastConvertedTime', 'TypeOfData', 'TypeOfProjection', 'Nx', 'Ny', 'Dx', 'Dy'],
+      grib2Parts: [/*'ParameterNameAndUnit',*/ /*'DataTitles',*/ /*'DataValues',*/ 'DataAllocated', 'LengthOfMessage', 'IdentificationOfCentre', 'IdentificationOfSubCentre', 'Year', 'Month', 'Day', 'Hour', 'Minute', 'Second', 'ForecastTimeInDefinedUnits', 'ForecastConvertedTime', 'TypeOfData', 'TypeOfProjection', 'Nx', 'Ny', 'Dx', 'Dy'],
       osmAttribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       stamenAttribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       osmUrl: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       osmWeatherUrl: 'http://osm.weather.gc.ca/osm/{z}/{x}/{y}.png',
       stamenTonerUrl: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.png',
       center: L.latLng(58, -102),
-      zoom: 4,
+      zoom: 3,
       minZoom: 0
     }
   },
@@ -107,7 +119,6 @@ export default {
       }
       let grib2Reader = new GRIB2CLASS(options)
       let gribData = this.gribDataByFilename(this.selectedGribFilename)
-      console.log(this.selectedGribFilename, gribData)
       grib2Reader.parse(gribData)
       return grib2Reader
     },
