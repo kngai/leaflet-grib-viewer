@@ -1,5 +1,5 @@
 {
-  "name": "leaflet-grib",
+  "name": "leaflet-grib-tester",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,7 +11,9 @@
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "grib2class": "^1.0.7",
+    "leaflet": "^1.6.0",
     "vue": "^2.6.11",
+    "vue2-leaflet": "^2.5.2",
     "vuetify": "^2.2.11",
     "vuex": "^3.4.0"
   },
