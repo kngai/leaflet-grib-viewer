@@ -1,4 +1,6 @@
-# leaflet-grib
+# leaflet-grib-viewer
+
+Vue-CLI project to load and display GRIB data using [grib2class](https://github.com/archmoj/grib2class) on a Leaflet map.
 
 ## Project setup
 ```
