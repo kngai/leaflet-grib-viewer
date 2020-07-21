@@ -1,5 +1,16 @@
 <template>
   <v-container>
+
+    <div>
+      <strong>Test image loaded from JSON (<code>{{png64Json}}</code>):</strong><br>
+      <img :src="png64Test" alt="Sample map image from JSON file" />
+    </div>
+
+    <div>
+      <strong>Test image loaded from vigilance pygeoapi:</strong><br>
+      <img :src="vigilancePngUrl" alt="Sample map image from Vigilance pygeoapi instance" />
+    </div>
+
     <div>
       <label for="grib-file-select">Filename:</label><br />
       <select
@@ -71,7 +82,8 @@ import L from 'leaflet'
 import { LMap, LControlScale, LControlLayers, LTileLayer } from 'vue2-leaflet'
 import GRIB2CLASS from 'grib2class'
 import { mapGetters, mapActions } from 'vuex'
-import JpxImage from '@/api/jpeg2000/jpx.min.js'
+import JpxImage from '@/api/jpeg2000/jpx'
+import axios from 'axios'
 
 // Default leaflet icon settings
 delete L.Icon.Default.prototype._getIconUrl
@@ -91,9 +103,54 @@ export default {
   },
   mounted() {
     this.getGrib(this.selectedGribFilename)
+
+    // png json test
+    // let PNG = require('pngjs').PNG
+    axios.get(this.png64Json)
+      .then((res) => {
+        //console.log('Raw PNG byte string output:', res.data.outputs)
+        this.png64Data = res.data.outputs.substr(2) // remove b'...' starting wrapper: b'
+        this.png64Data = this.png64Data.substr(0, this.png64Data.length-1) // remove the b'...' ending wrapper: '
+        // console.log(this.png64Data)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+
+    // vigilance PNG test
+    axios.post(this.vigilanceUrl, this.vigilanceReq, {
+      responseType: 'blob'
+    })
+      .then((res) => {
+        this.vigilancePngUrl = URL.createObjectURL(res.data)
+      }).catch((err) => {
+        console.log(err)
+      })
   },
   data () {
     return {
+      png64Data: null,
+      png64Json: '/response_1594129956700.json',
+      vigilanceUrl: 'http://geomet-dev-03.cmc.ec.gc.ca:5000/processes/generate-vigilance/jobs?raw=True',
+      vigilanceReq: {
+        inputs: [{
+          id: 'layers',
+          value: 'GEPS.DIAG.24_T8.ERGE15,GEPS.DIAG.24_T8.ERGE20,GEPS.DIAG.24_T8.ERGE25'
+        }, {
+          id: 'forecast-hour',
+          value: '2020-07-05T00:00:00Z'
+        }, {
+          id: 'model-run',
+          value: '2020-07-03T00:00:00Z'
+        }, {
+          id: 'bbox',
+          value: '-158.203125, 83.215693, -44.296875, 36.879621'
+        }, {
+          id: 'format',
+          value: 'png'
+        }]
+      },
+      vigilancePngUrl: null,
       selectedGrib2FileIndex: 0,
       selectedMember: 1,
       grib2Files: [
@@ -117,6 +174,9 @@ export default {
       'gribDataByFilename',
       'gribLoadedByFilename'
     ]),
+    png64Test: function () {
+      return 'data:image/png;base64,' + this.png64Data
+    },
     selectedGribFilename: function () {
       return this.grib2Files[this.selectedGrib2FileIndex]
     },
