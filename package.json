@@ -15,7 +15,7 @@
     "plotty": "^0.4.3",
     "vue": "^2.6.11",
     "vue2-leaflet": "^2.5.2",
-    "vuetify": "^2.2.32",
+    "vuetify": "^2.6.10",
     "vuex": "^3.4.0"
   },
   "devDependencies": {
